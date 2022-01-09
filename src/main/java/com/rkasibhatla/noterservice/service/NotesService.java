@@ -1,19 +1,21 @@
 package com.rkasibhatla.noterservice.service;
 
 import com.rkasibhatla.noterservice.entity.Note;
+import com.rkasibhatla.noterservice.entity.Tag;
 import com.rkasibhatla.noterservice.repository.NotesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class NotesService {
 
     @Autowired
     private NotesRepository notesRepository;
+
+    @Autowired
+    private TagService tagService;
 
     public List<Note> getAllNotes() {
         return notesRepository.findAll();
@@ -31,6 +33,15 @@ public class NotesService {
         Date now = new Date();
         note.setCreatedAt(now);
         note.setUpdatedAt(now);
+        Set<Tag> tagEntities = new HashSet<>();
+        for(Tag oneGivenTag: note.getTags()) {
+            Tag foundTag = tagService.getTagByName(oneGivenTag.getName());
+            if(foundTag != null)
+                tagEntities.add(foundTag);
+            else
+                tagEntities.add(tagService.addTag(oneGivenTag));
+        }
+        note.setTags(tagEntities);
         Note savedNote = notesRepository.save(note);
         return savedNote;
     }
