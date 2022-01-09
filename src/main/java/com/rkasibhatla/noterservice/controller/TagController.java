@@ -14,6 +14,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/tags")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TagController {
 
     @Autowired
@@ -38,5 +39,10 @@ public class TagController {
         Tag addedTag = tagService.addTag(tag);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(addedTag.getId()).toUri();
         return ResponseEntity.created(uri).build();
+    }
+
+    @GetMapping("/{id}")
+    public Tag getOneTag(@PathVariable Integer id) {
+        return tagService.getOneTag(id);
     }
 }

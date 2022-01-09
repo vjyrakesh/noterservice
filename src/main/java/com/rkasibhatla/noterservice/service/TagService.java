@@ -34,4 +34,8 @@ public class TagService {
     public Tag getTagByName(String name) {
         return tagRepository.findTagByName(name);
     }
+
+    public Tag getOneTag(Integer id) {
+        return tagRepository.findById(id).get();
+    }
 }
