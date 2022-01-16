@@ -1,5 +1,6 @@
 package com.rkasibhatla.noterservice.controller;
 
+import com.rkasibhatla.noterservice.dto.NoteDto;
 import com.rkasibhatla.noterservice.entity.Note;
 import com.rkasibhatla.noterservice.service.NotesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,22 @@ public class NotesController {
     private NotesService notesService;
 
     @GetMapping
-    public List<Note> getAllNotes() {
-        return notesService.getAllNotes();
+    public List<NoteDto> getAllNotes() {
+        List<Note> notes = notesService.getAllNotes();
+        List<NoteDto> noteDtoList = new ArrayList<>();
+        notes.forEach(note -> {
+            NoteDto noteDto = new NoteDto();
+            noteDto.setId(note.getId());
+            noteDto.setTitle(note.getTitle());
+            noteDto.setDescription(note.getDescription());
+            noteDto.setCreatedAt(note.getCreatedAt());
+            noteDto.setUpdatedAt(note.getUpdatedAt());
+            List<String> tagList = new ArrayList<>();
+            note.getTags().forEach(tag -> tagList.add(tag.getName()));
+            noteDto.setTags(tagList);
+            noteDtoList.add(noteDto);
+        });
+        return noteDtoList;
     }
 
     @PostMapping
@@ -35,8 +50,18 @@ public class NotesController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneNote(@PathVariable Integer id) {
         Note foundNote = notesService.getNoteById(id);
-        if(foundNote != null)
-            return new ResponseEntity<>(foundNote, HttpStatus.OK);
+        if(foundNote != null) {
+            NoteDto noteDto = new NoteDto();
+            noteDto.setId(foundNote.getId());
+            noteDto.setTitle(foundNote.getTitle());
+            noteDto.setDescription(foundNote.getDescription());
+            noteDto.setCreatedAt(foundNote.getCreatedAt());
+            noteDto.setUpdatedAt(foundNote.getUpdatedAt());
+            List<String> tagList = new ArrayList<>();
+            foundNote.getTags().forEach(tag -> tagList.add(tag.getName()));
+            noteDto.setTags(tagList);
+            return new ResponseEntity<>(noteDto, HttpStatus.OK);
+        }
         else
             return ResponseEntity.notFound().build();
     }
