@@ -1,5 +1,6 @@
 package com.rkasibhatla.noterservice.service;
 
+import com.rkasibhatla.noterservice.dto.NoteDto;
 import com.rkasibhatla.noterservice.entity.Note;
 import com.rkasibhatla.noterservice.entity.Tag;
 import com.rkasibhatla.noterservice.repository.NotesRepository;
@@ -47,15 +48,22 @@ public class NotesService {
     }
 
     public void deleteNote(Integer id) {
+        System.out.println("deleting " + id);
         notesRepository.delete(notesRepository.getById(id));
     }
 
-    public Note updateNote(Integer id, Note note) {
+    public Note updateNote(Integer id, NoteDto note) {
         Note foundNote = notesRepository.getById(id);
         if(foundNote != null) {
             foundNote.setTitle(note.getTitle());
             foundNote.setDescription(note.getDescription());
             foundNote.setUpdatedAt(new Date());
+            List<String> tagNames = note.getTags();
+            List<Tag> tagEntities = new ArrayList<>();
+            tagNames.forEach(tagName -> {
+                tagEntities.add(tagService.getTagByName(tagName));
+            });
+            foundNote.setTags(new HashSet<>(tagEntities));
             return notesRepository.save(foundNote);
         } else {
             return null;

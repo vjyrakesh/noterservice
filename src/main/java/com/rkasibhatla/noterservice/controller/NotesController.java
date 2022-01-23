@@ -67,16 +67,26 @@ public class NotesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteOneNote(Integer id) {
+    public ResponseEntity deleteOneNote(@PathVariable Integer id) {
         notesService.deleteNote(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOneNote(@PathVariable Integer id, @RequestBody Note note) {
+    public ResponseEntity<?> updateOneNote(@PathVariable Integer id, @RequestBody NoteDto note) {
         Note updatedNote = notesService.updateNote(id, note);
-        if(updatedNote != null)
-            return ResponseEntity.ok(updatedNote);
+        if(updatedNote != null) {
+            NoteDto noteDto = new NoteDto();
+            noteDto.setId(updatedNote.getId());
+            noteDto.setTitle(updatedNote.getTitle());
+            noteDto.setDescription(updatedNote.getDescription());
+            noteDto.setCreatedAt(updatedNote.getCreatedAt());
+            noteDto.setUpdatedAt(updatedNote.getUpdatedAt());
+            List<String> tagList = new ArrayList<>();
+            updatedNote.getTags().forEach(tag -> tagList.add(tag.getName()));
+            noteDto.setTags(tagList);
+            return new ResponseEntity<>(noteDto, HttpStatus.OK);
+        }
         else
             return ResponseEntity.notFound().build();
     }
