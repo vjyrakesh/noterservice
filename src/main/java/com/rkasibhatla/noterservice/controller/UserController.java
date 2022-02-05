@@ -29,4 +29,9 @@ public class UserController {
         result.setUsername(foundUser.getUsername());
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/")
+    public ResponseEntity root() {
+        return ResponseEntity.noContent().build();
+    }
 }
