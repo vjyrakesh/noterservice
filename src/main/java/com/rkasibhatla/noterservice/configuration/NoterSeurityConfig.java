@@ -8,8 +8,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,16 +30,8 @@ public class NoterSeurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        corsConfiguration.setAllowedOriginPatterns(Arrays.asList("*"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setExposedHeaders(Arrays.asList("Authorization"));
-
         http
                 .cors()
-                .configurationSource(request -> corsConfiguration)
                 .and()
                 .csrf()
                 .disable()
@@ -47,9 +42,23 @@ public class NoterSeurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register")
                 .permitAll()
                 .and()
-                .logout()
-                .logoutSuccessUrl("/")
-                .and()
+                .logout(logout -> logout
+                        .permitAll()
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                }
+                        )
+                        .addLogoutHandler((request, response, auth) -> {
+                            try {
+                                request.logout();
+                            } catch (ServletException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        })
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                )
+
                 .httpBasic();
     }
 }

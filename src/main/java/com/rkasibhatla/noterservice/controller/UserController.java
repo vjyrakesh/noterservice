@@ -5,6 +5,7 @@ import com.rkasibhatla.noterservice.entity.User;
 import com.rkasibhatla.noterservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,6 +33,7 @@ public class UserController {
 
     @GetMapping("/")
     public ResponseEntity root() {
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
         return ResponseEntity.noContent().build();
     }
 }
